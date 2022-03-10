@@ -45,7 +45,7 @@ namespace AllGreen.Lib
 
         public IEnumerable<string> GetNames()
         {
-            return TestScripts.Keys.AsEnumerable();
+            return TestScripts.Keys.OrderBy(name => name).AsEnumerable();
         }
 
     }
