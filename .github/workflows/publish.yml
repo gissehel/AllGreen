@@ -1,0 +1,55 @@
+name: build and publish
+
+on:
+    push:
+        branches:
+            - master
+        tags:
+            - 'v*'
+
+env:
+    SOLUTION_NAME: 'AllGreen.sln' # set this to your application's name
+    VERSION: '${{ github.ref_name }}'
+
+jobs:
+    build:
+        name: Build and deploy
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v2
+
+            - name: Get the version (for tags)
+              if: "contains(github.ref, 'refs/tags')"
+              shell: bash
+              run: echo "VERSION_LABEL=${GITHUB_REF#refs/tags/v}" >> "${GITHUB_ENV}"
+
+            - name: Get the version (for branches)
+              if: "!contains(github.ref, 'refs/tags')"
+              shell: bash
+              run: echo "VERSION_LABEL=${GITHUB_REF#refs/heads/}-latest" >> "${GITHUB_ENV}"
+
+            - name: build ${{ env.SOLUTION_NAME }} (Version ${{ env.VERSION_LABEL }})
+              run: |
+                dotnet.exe build ${{ env.SOLUTION_NAME }} -c Release
+                dotnet.exe pack ${{ env.SOLUTION_NAME }} -c Release
+
+            - name: Upload Artifacts ${{ env.VERSION_LABEL }}
+              if: "contains(github.ref, 'refs/tags')"
+              uses: actions/upload-artifact@v2
+              with:
+                name: nupkg-${{ env.VERSION_LABEL }}
+                path: ./nupkg/*.nupkg
+
+            - name: Publish to api.nuget.org
+              if: "contains(github.ref, 'refs/tags')"
+              run: nuget push **\*.nupkg -Source 'https://api.nuget.org/v3/index.json' -ApiKey ${{secrets.NUGET_API_KEY}}
+
+            - name: "Create release"
+              if: "success() && contains(github.ref, 'refs/tags')"
+              uses: "softprops/action-gh-release@v1"
+              with:
+                  body:
+                  files: |
+                    ./nupkg/*.nupkg
+                  draft: false
+                  prerelease: false
