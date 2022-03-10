@@ -1,0 +1,14 @@
+<Project>
+    <Import Project="Version.targets" />
+	<PropertyGroup>
+        <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+        <Authors>gissehel</Authors>
+        <PackageTags>AllGreen Tests</PackageTags>
+        <description>A test framework that aims at easily simulate how you use and interact with your code using simple sentences.</description>
+        <PackageRequireLicenseAcceptance>False</PackageRequireLicenseAcceptance>
+        <PackageProjectUrl>https://github.com/gissehel/AllGreen</PackageProjectUrl>
+        <PackageIconUrl>https://raw.githubusercontent.com/gissehel/AllGreen/master/res/AllGreen-32.png</PackageIconUrl>
+        <Copyright>MIT</Copyright>
+        <PackageOutputPath>../nupkg</PackageOutputPath>
+	</PropertyGroup>
+</Project> 
